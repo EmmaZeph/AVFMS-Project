@@ -39,4 +39,13 @@ class CarServices{
   static Stream<List<CarModel>> getCars() {
     return cars.snapshots().map((snapshot) => snapshot.docs.map((doc) => CarModel.fromMap(doc.data())).toList());
   }
+
+  static Future<bool> updateCarStatus(String carId, Map<String, String> map) async{
+    try {
+      await cars.doc(carId).update(map);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
 }

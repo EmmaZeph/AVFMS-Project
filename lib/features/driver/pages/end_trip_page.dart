@@ -4,6 +4,7 @@ import 'package:fuel_management/core/views/custom_button.dart';
 import 'package:fuel_management/core/views/custom_dialog.dart';
 import 'package:fuel_management/core/views/custom_input.dart';
 import 'package:fuel_management/features/admin/dashboard/data/assignment_model.dart';
+import 'package:fuel_management/features/admin/dashboard/services/car_services.dart';
 
 import '../../../utils/styles.dart';
 import '../../admin/dashboard/services/assignment_services.dart';
@@ -133,6 +134,9 @@ class SelectedAssignment extends StateNotifier<AssignmentModel> {
         returnTime: DateTime.now().millisecondsSinceEpoch);
     var result = await AssignmentServices.updateAssignment(state);
     if (result) {
+      //update car status
+      
+      await CarServices.updateCarStatus(state.carId, {'status': 'available'});
       CustomDialogs.dismiss();
       CustomDialogs.toast(message: 'Trip ended successfully');
       //pop to previous page
