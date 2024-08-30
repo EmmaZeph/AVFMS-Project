@@ -4,11 +4,14 @@ import 'package:fuel_management/features/admin/dashboard/data/driver_model.dart'
 import 'package:fuel_management/features/admin/dashboard/data/fuel_model.dart';
 import 'package:fuel_management/features/admin/dashboard/provider/drivers_provider.dart';
 import 'package:fuel_management/features/admin/dashboard/provider/fuel_purchace_provider.dart';
+import 'package:fuel_management/features/admin/dashboard/provider/maintenance_provider.dart';
 import 'package:fuel_management/features/admin/dashboard/services/car_services.dart';
 import 'package:fuel_management/features/admin/dashboard/services/drivers_services.dart';
 import 'package:fuel_management/features/admin/dashboard/services/fuel_purchase_services.dart';
+import 'package:fuel_management/features/admin/dashboard/services/maintenance_services.dart';
 
 import '../data/assignment_model.dart';
+import '../data/maintenance_model.dart';
 import '../services/assignment_services.dart';
 import 'assignment_provider.dart';
 import 'cars_provider.dart';
@@ -46,5 +49,15 @@ final fuelStreamProvider =
   await for (var value in stream) {
     ref.read(fuelProvider.notifier).setItems(value);
     yield value;
+  }
+});
+
+
+final maintenanceStreamProvider =
+    StreamProvider<List<MaintenanceModel>>((ref) async* {
+  var data = MaintenanceServices.getMaintenances();
+  await for (var maintenance in data) {
+    ref.read(maintenanceProvider.notifier).setItems(maintenance);
+    yield maintenance;
   }
 });

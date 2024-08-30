@@ -5,6 +5,7 @@ import 'package:fuel_management/core/views/custom_input.dart';
 import 'package:fuel_management/router/router.dart';
 import 'package:fuel_management/utils/colors.dart';
 import '../../../../../../core/constant.dart';
+import '../../../../../../core/functions/int_to_date.dart';
 import '../../../../../../core/views/custom_button.dart';
 import '../../../../../../router/router_items.dart';
 import '../../../../../../utils/styles.dart';
@@ -234,13 +235,57 @@ class _NewCarFormState extends ConsumerState<NewCarForm> {
                   const SizedBox(
                     height: 25,
                   ),
-                  CustomTextFields(
-                    hintText: 'Description',
-                    label: 'Give car description',
-                    maxLines: 5,
-                    onSaved: (value) {
-                      notifier.setDescription(value);
-                    },
+                  Row(
+                    children: [
+                      //last maintenance date
+                      Expanded(
+                        child: CustomTextFields(
+                          hintText: 'Last Maintenance Date',
+                          label: 'Last Maintenance Date',
+                          controller: TextEditingController(
+                              text: ref.watch(newCarProvider).lastMaintenance !=
+                                      0
+                                  ? intToDate(
+                                      ref.watch(newCarProvider).lastMaintenance)
+                                  : ''),
+                          keyboardType: TextInputType.datetime,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Last Maintenance Date is required';
+                            }
+                            return null;
+                          },
+                          suffixIcon: IconButton(
+                            icon: const Icon(Icons.calendar_today),
+                            onPressed: () {
+                              showDatePicker(
+                                context: context,
+                                initialDate: DateTime.now(),
+                                firstDate: DateTime(2020),
+                                lastDate: DateTime(2100),
+                              ).then((value) {
+                                if (value != null) {
+                                  notifier.setLastMaintenance(
+                                      value.millisecondsSinceEpoch);
+                                }
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 15,
+                      ),
+                      Expanded(
+                        child: CustomTextFields(
+                          hintText: 'Description',
+                          label: 'Give car description',
+                          onSaved: (value) {
+                            notifier.setDescription(value);
+                          },
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(
                     height: 25,

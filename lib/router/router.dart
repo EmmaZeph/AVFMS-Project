@@ -4,6 +4,9 @@ import 'package:fuel_management/features/admin/dashboard/pages/cars_page.dart';
 import 'package:fuel_management/features/admin/dashboard/pages/forms/assignment/edit_assignment_page.dart';
 import 'package:fuel_management/features/admin/dashboard/pages/forms/assignment/new_assignment.dart';
 import 'package:fuel_management/features/admin/dashboard/pages/forms/fuel/new_fuel_purchase.dart';
+import 'package:fuel_management/features/admin/dashboard/pages/forms/maintenance/edit_maintenance.dart';
+import 'package:fuel_management/features/admin/dashboard/pages/maintenance_page.dart';
+import 'package:fuel_management/features/admin/dashboard/pages/reports_page.dart';
 import 'package:go_router/go_router.dart';
 import '../features/admin/auth/views/login_page.dart';
 import '../features/admin/container_page.dart';
@@ -15,6 +18,7 @@ import '../features/admin/dashboard/pages/forms/car/new_car_form.dart';
 import '../features/admin/dashboard/pages/forms/driver/edit_driver_form.dart';
 import '../features/admin/dashboard/pages/forms/driver/new_driver_forms.dart';
 import '../features/admin/dashboard/pages/forms/fuel/edit_fuel_purchase.dart';
+import '../features/admin/dashboard/pages/forms/maintenance/new_maintenance.dart';
 import '../features/admin/dashboard/pages/fuel_purchace_page.dart';
 import '../features/admin/dashboard/views/dashboard_main.dart';
 import 'router_items.dart';
@@ -142,6 +146,32 @@ class MyRouter {
                     var id = state.pathParameters['id'];
                     return  EditFuelPurchase(id: id!);
                   }),
+
+                  GoRoute(path: RouterItem.maintenanceRoute.path,
+                  name: RouterItem.maintenanceRoute.name,
+                   builder: (context, state) {
+                    return  const MaintenancePage();
+                  }),
+                  GoRoute(path: RouterItem.newMaintenanceRoute.path,
+                  name: RouterItem.newMaintenanceRoute.name,
+                   builder: (context, state) {
+                    return  const NewMaintenance();
+                  }),
+                  GoRoute(path: RouterItem.editMaintenanceRoute.path,
+                  name:  RouterItem.editMaintenanceRoute.name,
+                  builder: (context, state) {
+                    var id = state.pathParameters['id'];
+                    return  EditMaintenance(id: id!,);
+                  },
+                  ),
+
+                  GoRoute(path: RouterItem.reportRoute.path,
+                  name: RouterItem.reportRoute.name,
+                   builder: (context, state) {
+                    return  const ReportsPage();
+                  }),
+                  
+                
                 ])
           ]);
 

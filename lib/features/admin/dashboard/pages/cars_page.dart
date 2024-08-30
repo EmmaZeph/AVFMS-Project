@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fuel_management/core/views/custom_button.dart';
 import 'package:fuel_management/core/views/custom_dialog.dart';
+import 'package:fuel_management/features/admin/dashboard/data/car_model.dart';
 import 'package:fuel_management/features/admin/dashboard/pages/forms/provider/car_new_edit_provider.dart';
+import 'package:fuel_management/features/admin/dashboard/provider/assignment_provider.dart';
 import 'package:fuel_management/features/admin/dashboard/provider/cars_provider.dart';
 import 'package:fuel_management/router/router.dart';
 import 'package:fuel_management/router/router_items.dart';
@@ -87,7 +89,7 @@ class _CarsPageState extends ConsumerState<CarsPage> {
                 'No Cars found',
                 style: rowStyles,
               )),
-              minWidth: 1200,
+              minWidth: styles.width * .9,
               headingRowColor: WidgetStateColor.resolveWith(
                   (states) => primaryColor.withOpacity(0.6)),
               headingTextStyle: titleStyles,
@@ -129,6 +131,11 @@ class _CarsPageState extends ConsumerState<CarsPage> {
                   fixedWidth: styles.isMobile ? null : 150,
                 ),
                 DataColumn2(
+                  label: Text('Maintenance'.toUpperCase()),
+                  size: ColumnSize.M,
+                  fixedWidth: styles.isMobile ? null : 150,
+                ),
+                DataColumn2(
                   label: Text(
                     'Status'.toUpperCase(),
                     textAlign: TextAlign.center,
@@ -159,8 +166,51 @@ class _CarsPageState extends ConsumerState<CarsPage> {
                         style: rowStyles)),
                     DataCell(
                         Text(car.seatCapacity.toString(), style: rowStyles)),
+                    DataCell(
+                      FutureBuilder(
+                          future: carNeedsMaintenance(car),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const CircularProgressIndicator();
+                            }
+                            if (snapshot.hasError) {
+                              return Text('Error: ${snapshot.error}');
+                            }
+                            if (snapshot.hasData) {
+                              if (snapshot.data != null && snapshot.data!) {
+                                return Container(
+                                  width: 100,
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 5, horizontal: 15),
+                                  decoration: BoxDecoration(
+                                      color: Colors.red,
+                                      borderRadius: BorderRadius.circular(5)),
+                                  child: Text('Needed',
+                                      textAlign: TextAlign.center,
+                                      style: rowStyles.copyWith(
+                                          color: Colors.white)),
+                                );
+                              } else {
+                                return Container(
+                                  width: 200,
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 5, horizontal: 15),
+                                  decoration: BoxDecoration(
+                                      color: Colors.green,
+                                      borderRadius: BorderRadius.circular(5)),
+                                  child: Text('Not Needed',
+                                      textAlign: TextAlign.center,
+                                      style: rowStyles.copyWith(
+                                          color: Colors.white)),
+                                );
+                              }
+                            }
+                            return const SizedBox();
+                          }),
+                    ),
                     DataCell(Container(
-                        width: 90,
+                        width: 200,
                         // alignment: Alignment.center,
                         padding: const EdgeInsets.symmetric(
                             vertical: 5, horizontal: 15),
@@ -172,6 +222,7 @@ class _CarsPageState extends ConsumerState<CarsPage> {
                                     : Colors.red,
                             borderRadius: BorderRadius.circular(5)),
                         child: Text(car.status,
+                            textAlign: TextAlign.center,
                             style: rowStyles.copyWith(color: Colors.white)))),
                     DataCell(
                       Row(
@@ -216,5 +267,36 @@ class _CarsPageState extends ConsumerState<CarsPage> {
         ],
       ),
     );
+  }
+
+  Future<bool> carNeedsMaintenance(CarModel car) async {
+    //check the last time the car went to maintenance
+    //after that i check if it has been two weeks since the last maintenance
+    //and within the two weeks i check if the car has been used.
+    var lastMaintenance =
+        DateTime.fromMillisecondsSinceEpoch(car.lastMaintenance);
+    var carAssignments = ref
+        .watch(assignmentsProvider)
+        .items
+        .where((element) => element.carId == car.id)
+        .toList();
+    //check assignments after the last maintenance
+    var assignmentAfterMaintenance = carAssignments.where((element) {
+      var date = DateTime.fromMillisecondsSinceEpoch(element.pickupDate);
+      return date.isAfter(lastMaintenance);
+    }).toList();
+    if (assignmentAfterMaintenance.isEmpty) {
+      return false;
+    } else {
+      //check if the car last maintenance was more than two weeks ago
+      var twoWeeksAgo = DateTime.now().subtract(const Duration(days: 13));
+      if (lastMaintenance.isBefore(twoWeeksAgo)) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    //check if
   }
 }

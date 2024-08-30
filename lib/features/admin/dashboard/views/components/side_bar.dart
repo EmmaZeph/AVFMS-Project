@@ -80,6 +80,20 @@ class SideBar extends ConsumerWidget {
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 2),
           child: SideBarItem(
+            title: 'Maintenance',
+            padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+            icon: Icons.build,
+            isActive:
+                ref.watch(routerProvider) == RouterItem.maintenanceRoute.name,
+            onTap: () {
+              MyRouter(context: context, ref: ref)
+                  .navigateToRoute(RouterItem.maintenanceRoute);
+            },
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2),
+          child: SideBarItem(
             title: 'Drivers',
             padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
             icon: Icons.people,
@@ -115,6 +129,20 @@ class SideBar extends ConsumerWidget {
             onTap: () {
               MyRouter(context: context, ref: ref)
                   .navigateToRoute(RouterItem.fuelPurchaseRoute);
+            },
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2),
+          child: SideBarItem(
+            title: 'Reports',
+            padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+            icon: Icons.receipt,
+            isActive:
+                ref.watch(routerProvider) == RouterItem.reportRoute.name,
+            onTap: () {
+              MyRouter(context: context, ref: ref)
+                  .navigateToRoute(RouterItem.reportRoute);
             },
           ),
         ),

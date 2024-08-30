@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fuel_management/core/views/custom_button.dart';
 import 'package:fuel_management/features/admin/auth/provider/admin_login_provider.dart';
 import 'package:fuel_management/features/admin/dashboard/provider/stream_data_provider.dart';
 import '../../../../core/views/custom_dialog.dart';
@@ -22,6 +21,7 @@ class DashBoardMainPage extends ConsumerWidget {
     var driversStream = ref.watch(driversStreamProvider);
     var assignmentStream = ref.watch(assignmentStreamProvider);
     var fuelPurchaseStream = ref.watch(fuelStreamProvider);
+    var maintenanceStream = ref.watch(maintenanceStreamProvider);
     return SafeArea(
       child: Scaffold(
           appBar: AppBar(
@@ -117,7 +117,16 @@ class DashBoardMainPage extends ConsumerWidget {
                                             data: (offices) {
                                               return fuelPurchaseStream.when(
                                                   data: (fuel) {
-                                                    return child;
+                                                    return maintenanceStream.when(data: (data){
+                                                      return child;
+                                                    }, error: (error,stack){
+                                                       return Center(
+                                                  child:
+                                                      Text(error.toString()));
+                                                    }, loading: () => const Center(
+                                                      child:
+                                                          CircularProgressIndicator()));
+
                                                   },
                                                   error: (error, stack) {
                                                     return Center(

@@ -45,6 +45,10 @@ class NewCarProvider extends StateNotifier<CarModel> {
     state = state.copyWith(description: value!);
   }
 
+  void setLastMaintenance(int millisecondsSinceEpoch) {
+    state = state.copyWith(lastMaintenance: millisecondsSinceEpoch);
+  }
+
   void saveCar(
       {required BuildContext context,
       required GlobalKey<FormState> form}) async {
@@ -66,12 +70,9 @@ class NewCarProvider extends StateNotifier<CarModel> {
   }
 }
 
-
-
 final editCarProvider = StateNotifierProvider<EditCarProvider, CarModel>((ref) {
   return EditCarProvider();
 });
-
 
 class EditCarProvider extends StateNotifier<CarModel> {
   EditCarProvider() : super(CarModel.empty());
@@ -112,6 +113,10 @@ class EditCarProvider extends StateNotifier<CarModel> {
     state = state.copyWith(description: value!);
   }
 
+  void setLastMaintenance(int millisecondsSinceEpoch) {
+    state = state.copyWith(lastMaintenance: millisecondsSinceEpoch);
+  }
+
   void updateCar(
       {required BuildContext context,
       required GlobalKey<FormState> form}) async {
@@ -120,6 +125,7 @@ class EditCarProvider extends StateNotifier<CarModel> {
     if (result) {
       //reset form
       form.currentState!.reset();
+      state = CarModel.empty();
       CustomDialogs.dismiss();
       CustomDialogs.toast(message: 'Car update successfully');
       context.go(RouterItem.carsRoute.path);

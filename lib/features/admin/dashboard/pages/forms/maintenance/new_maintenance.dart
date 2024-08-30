@@ -1,60 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
-import 'package:fuel_management/features/admin/dashboard/data/car_model.dart';
-import 'package:fuel_management/features/admin/dashboard/data/driver_model.dart';
-import 'package:fuel_management/features/admin/dashboard/pages/forms/provider/fuel_purchase_provider.dart';
-import 'package:fuel_management/features/admin/dashboard/provider/fuel_purchace_provider.dart';
+import 'package:fuel_management/core/views/custom_dialog.dart';
+import 'package:fuel_management/core/views/custom_drop_down.dart';
+import 'package:fuel_management/core/views/custom_input.dart';
+import 'package:fuel_management/features/admin/dashboard/pages/forms/provider/new_edit_maintenance_provider.dart';
+import 'package:fuel_management/router/router.dart';
+import 'package:fuel_management/router/router_items.dart';
+import 'package:fuel_management/utils/colors.dart';
 import 'package:image_network/image_network.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../../../../../../core/constant.dart';
 import '../../../../../../core/functions/int_to_date.dart';
 import '../../../../../../core/views/custom_button.dart';
-import '../../../../../../core/views/custom_dialog.dart';
-import '../../../../../../core/views/custom_drop_down.dart';
-import '../../../../../../core/views/custom_input.dart';
-import '../../../../../../router/router.dart';
-import '../../../../../../router/router_items.dart';
-import '../../../../../../utils/colors.dart';
 import '../../../../../../utils/styles.dart';
+import '../../../data/car_model.dart';
+import '../../../data/driver_model.dart';
 import '../../../provider/cars_provider.dart';
 import '../../../provider/drivers_provider.dart';
+import '../provider/fuel_purchase_provider.dart';
 
-class EditFuelPurchase extends ConsumerStatefulWidget {
-  const EditFuelPurchase({super.key, required this.id});
-  final String id;
+class NewMaintenance extends ConsumerStatefulWidget {
+  const NewMaintenance({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      _EditFuelPurchaseState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _NewMaintenanceState();
 }
 
-class _EditFuelPurchaseState extends ConsumerState<EditFuelPurchase> {
+class _NewMaintenanceState extends ConsumerState<NewMaintenance> {
   final formKey = GlobalKey<FormState>();
 
   final receiptController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     var styles = Styles(context);
-    var notifier = ref.read(editPurchaseProvider.notifier);
-    var purchase = ref
-        .watch(fuelProvider)
-        .items
-        .where((element) => element.id == widget.id)
-        .toList()
-        .firstOrNull;
-      
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (purchase != null) {
-        notifier.setPurchase(purchase);
-        setState(() {
-          
-        });
-      }
-      receiptController.text = purchase?.receiptImage ?? '';
-    });
-    purchase = ref.watch(editPurchaseProvider);
+    var notifier = ref.read(newMaintenanceProvider.notifier);
     return Container(
       color: Colors.white,
       padding: const EdgeInsets.all(22),
@@ -68,7 +48,7 @@ class _EditFuelPurchaseState extends ConsumerState<EditFuelPurchase> {
                 InkWell(
                   onTap: () {
                     MyRouter(context: context, ref: ref)
-                        .navigateToRoute(RouterItem.fuelPurchaseRoute);
+                        .navigateToRoute(RouterItem.maintenanceRoute);
                   },
                   child: Row(
                     children: [
@@ -88,7 +68,7 @@ class _EditFuelPurchaseState extends ConsumerState<EditFuelPurchase> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'Update Purchase'.toUpperCase(),
+                        'New Maintenance Records'.toUpperCase(),
                         style: styles.title(fontSize: 35, color: Colors.black),
                       ),
                     ],
@@ -115,17 +95,16 @@ class _EditFuelPurchaseState extends ConsumerState<EditFuelPurchase> {
                     children: [
                       Expanded(
                         child: CustomTextFields(
-                          hintText: 'Date of Purchase',
-                          label: 'Date of Purchase',
+                          hintText: 'Date of Maintenance',
+                          label: 'Date of Maintenance',
                           controller: TextEditingController(
-                              text: ref.watch(editPurchaseProvider).dateTime !=
-                                      0
+                              text: ref.watch(newMaintenanceProvider).date != 0
                                   ? intToDate(
-                                      ref.watch(editPurchaseProvider).dateTime)
+                                      ref.watch(newMaintenanceProvider).date)
                                   : ''),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Date of Purchase is required';
+                              return 'Date of maintenance is required';
                             }
                             return null;
                           },
@@ -152,40 +131,18 @@ class _EditFuelPurchaseState extends ConsumerState<EditFuelPurchase> {
                       ),
                       Expanded(
                         child: CustomTextFields(
-                          hintText: 'Quantity',
-                          label: 'Quantity (Liters)',
+                          hintText: 'Description',
+                          label: 'Maintenance Description',
                           //isCapitalized: true,
-                          isDigitOnly: true,
-                          initialValue: ref.watch(editPurchaseProvider).quantity.toString(),
+
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Quantity is required';
+                              return 'Description is required';
                             }
                             return null;
                           },
                           onSaved: (value) {
-                            notifier.setQuantity(value);
-                          },
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 15,
-                      ),
-                      Expanded(
-                        child: CustomTextFields(
-                          hintText: 'Price',
-                          label: 'Price (GHS)',
-                          initialValue: purchase?.price.toString(),
-                          keyboardType: TextInputType.number,
-                          isDigitOnly: true,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Price is required';
-                            }
-                            return null;
-                          },
-                          onSaved: (value) {
-                            notifier.setPrice(value);
+                            notifier.setDescription(value);
                           },
                         ),
                       ),
@@ -215,17 +172,17 @@ class _EditFuelPurchaseState extends ConsumerState<EditFuelPurchase> {
                             //wait for build to complete
                             WidgetsBinding.instance.addPostFrameCallback((_) {
                               controller.text =
-                                  ref.watch(editPurchaseProvider).boughtByName;
+                                  ref.watch(newMaintenanceProvider).driverName;
                               //remove focus
                             });
                             return CustomTextFields(
-                              label: 'Select User',
-                              hintText: 'Search user',
+                              label: 'Select Driver',
+                              hintText: 'Search Driver',
                               controller: controller,
                               focusNode: focusNode,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Please select user';
+                                  return 'Please select Driver';
                                 }
                                 return null;
                               },
@@ -252,7 +209,7 @@ class _EditFuelPurchaseState extends ConsumerState<EditFuelPurchase> {
                             );
                           },
                           onSelected: (user) {
-                            notifier.setBoughtBy(user);
+                            notifier.setDriver(user);
                           },
                         ),
                       ),
@@ -278,7 +235,7 @@ class _EditFuelPurchaseState extends ConsumerState<EditFuelPurchase> {
                             //wait for build to complete
                             WidgetsBinding.instance.addPostFrameCallback((_) {
                               controller.text =
-                                  ref.watch(editPurchaseProvider).carId;
+                                  ref.watch(newMaintenanceProvider).carId;
                               //remove focus
                             });
                             return CustomTextFields(
@@ -302,8 +259,8 @@ class _EditFuelPurchaseState extends ConsumerState<EditFuelPurchase> {
                               subtitle: Text(user.model),
                             );
                           },
-                          onSelected: (user) {
-                            notifier.setCarNo(user.registrationNumber);
+                          onSelected: (car) {
+                            notifier.setCar(car);
                           },
                         ),
                       ),
@@ -314,26 +271,54 @@ class _EditFuelPurchaseState extends ConsumerState<EditFuelPurchase> {
                   ),
                   Row(
                     children: [
+                      //maintenance type
                       Expanded(
-                          child: CustomDropDown(
-                              label: 'Fuel Type',
-                              hintText: 'Fuel Type',
-                              value: purchase!.fuelType.isEmpty
-                                  ? null
-                                  : purchase.fuelType,
-                              validator: (fuel) {
-                                if (fuel == null || fuel.isEmpty) {
-                                  return 'Fuel Type is required';
-                                }
-                                return null;
-                              },
-                              items: fuelType
-                                  .map((e) => DropdownMenuItem(
-                                      value: e, child: Text(e)))
-                                  .toList(),
-                              onChanged: (value) {
-                                notifier.setFuelType(value);
-                              })),
+                        child: CustomDropDown(
+                            items: [
+                              'Full Service',
+                              'Engine',
+                              'Brake',
+                              'Oil',
+                              'Tyre',
+                              'Battery',
+                              'Others'
+                            ].map((type) {
+                              return DropdownMenuItem(
+                                value: type,
+                                child: Text(type),
+                              );
+                            }).toList(),
+                            onChanged: (value) {
+                              notifier.setMaintenanceType(value);
+                            },
+                            validator: (type) {
+                              if (type == null || type.isEmpty) {
+                                return 'Maintenance type is required';
+                              }
+                              return null;
+                            },
+                            label: 'Maintenance Type'),
+                      ),
+                      const SizedBox(
+                        width: 15,
+                      ),
+                      Expanded(
+                        child: CustomTextFields(
+                          hintText: 'Cost',
+                          label: 'Cost (GHS)',
+                          keyboardType: TextInputType.number,
+                          isDigitOnly: true,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Cost is required';
+                            }
+                            return null;
+                          },
+                          onSaved: (value) {
+                            notifier.setCost(value);
+                          },
+                        ),
+                      ),
                       const SizedBox(
                         width: 15,
                       ),
@@ -364,14 +349,14 @@ class _EditFuelPurchaseState extends ConsumerState<EditFuelPurchase> {
                     height: 25,
                   ),
                   CustomButton(
-                    text: 'Update Purchase',
+                    text: 'Save Records',
                     radius: 10,
                     onPressed: () {
                       if (formKey.currentState!.validate()) {
                         formKey.currentState!.save();
                         if (ref
-                            .watch(editPurchaseProvider)
-                            .boughtById
+                            .watch(newMaintenanceProvider)
+                            .driverId
                             .isEmpty) {
                           CustomDialogs.toast(
                               message: 'Please select driver',
@@ -384,13 +369,13 @@ class _EditFuelPurchaseState extends ConsumerState<EditFuelPurchase> {
                               type: DialogType.error);
                           return;
                         }
-                        if (ref.watch(editPurchaseProvider).carId.isEmpty) {
+                        if (ref.watch(newMaintenanceProvider).carId.isEmpty) {
                           CustomDialogs.toast(
                               message: 'Please select Car',
                               type: DialogType.error);
                           return;
                         }
-                        notifier.updatePurchase(ref: ref, context: context);
+                        notifier.saveRecords(ref: ref, form: formKey);
                       }
                     },
                   )

@@ -6,6 +6,7 @@ import 'package:fuel_management/core/views/custom_input.dart';
 import 'package:fuel_management/features/admin/dashboard/provider/cars_provider.dart';
 import 'package:fuel_management/router/router.dart';
 
+import '../../../../../../core/functions/int_to_date.dart';
 import '../../../../../../core/views/custom_button.dart';
 import '../../../../../../router/router_items.dart';
 import '../../../../../../utils/colors.dart';
@@ -26,12 +27,15 @@ class _EditCarFromState extends ConsumerState<EditCarFrom> {
   Widget build(BuildContext context) {
     var styles = Styles(context);
     var notifier = ref.read(editCarProvider.notifier);
-    var car = ref.watch(carsProvider).items.firstWhere((element) => element.id == widget.id);
+    var car = ref
+        .watch(carsProvider)
+        .items
+        .firstWhere((element) => element.id == widget.id);
     //check if widget is done building
-     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       notifier.setCar(car);
     });
-     car = ref.watch(editCarProvider);
+    car = ref.watch(editCarProvider);
     return Container(
       color: Colors.white,
       padding: const EdgeInsets.all(22),
@@ -250,14 +254,59 @@ class _EditCarFromState extends ConsumerState<EditCarFrom> {
                   const SizedBox(
                     height: 25,
                   ),
-                  CustomTextFields(
-                    hintText: 'Description',
-                    label: 'Give car description',
-                    maxLines: 5,
-                    initialValue: car.description,
-                    onSaved: (value) {
-                      notifier.setDescription(value);
-                    },
+                  Row(
+                    children: [
+                      Expanded(
+                        child: CustomTextFields(
+                          hintText: 'Last Maintenance Date',
+                          label: 'Last Maintenance Date',
+                          controller: TextEditingController(
+                              text:
+                                  ref.watch(editCarProvider).lastMaintenance !=
+                                          0
+                                      ? intToDate(ref
+                                          .watch(editCarProvider)
+                                          .lastMaintenance)
+                                      : ''),
+                          keyboardType: TextInputType.datetime,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Last Maintenance Date is required';
+                            }
+                            return null;
+                          },
+                          suffixIcon: IconButton(
+                            icon: const Icon(Icons.calendar_today),
+                            onPressed: () {
+                              showDatePicker(
+                                context: context,
+                                initialDate: DateTime.now(),
+                                firstDate: DateTime(2020),
+                                lastDate: DateTime(2100),
+                              ).then((value) {
+                                if (value != null) {
+                                  notifier.setLastMaintenance(
+                                      value.millisecondsSinceEpoch);
+                                }
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 15,
+                      ),
+                      Expanded(
+                        child: CustomTextFields(
+                          hintText: 'Description',
+                          label: 'Give car description',
+                          initialValue: car.description,
+                          onSaved: (value) {
+                            notifier.setDescription(value);
+                          },
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(
                     height: 25,

@@ -26,6 +26,11 @@ class RouterItem {
   static final RouterItem fuelPurchaseRoute =
       RouterItem(path: '/fuel-purchase', name: 'fuelPurchase');
 
+      static final RouterItem maintenanceRoute =
+      RouterItem(path: '/maintenance', name: 'maintenance');
+
+      static final RouterItem reportRoute = RouterItem(path: '/report', name: 'report');
+
   static RouterItem newCarRoute = RouterItem(path: '/new-car', name: 'newCar');
   static RouterItem editCarRoute =
       RouterItem(path: '/edit-car/:id', name: 'editCar');
@@ -34,6 +39,13 @@ class RouterItem {
       RouterItem(path: '/new-driver', name: 'newDriver');
   static RouterItem editDriverRoute =
       RouterItem(path: '/edit-driver/:id', name: 'editDriver');
+
+  static RouterItem newMaintenanceRoute = RouterItem(
+        path: '/new-maintenance', name: 'newMaintenance');
+
+  static RouterItem editMaintenanceRoute = RouterItem(
+          path:  '/edit-maintenance/:id', name: 'editMaintenance');
+  
 
   static RouterItem newAssignmentRoute = RouterItem(
     path: '/new-assignment',
@@ -62,6 +74,9 @@ class RouterItem {
     driversRoute,
     assignmentRoute,
     fuelPurchaseRoute,
+    maintenanceRoute,
+    reportRoute,
+
   ];
 
   static RouterItem getRouteByPath(String fullPath) {

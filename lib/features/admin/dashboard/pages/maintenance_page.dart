@@ -1,33 +1,33 @@
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fuel_management/features/admin/dashboard/pages/forms/provider/driver_new_edit_provider.dart';
-import 'package:fuel_management/features/admin/dashboard/provider/drivers_provider.dart';
-import 'package:fuel_management/router/router.dart';
+import 'package:fuel_management/core/functions/int_to_date.dart';
+import 'package:fuel_management/core/views/custom_input.dart';
+import 'package:fuel_management/features/admin/dashboard/provider/maintenance_provider.dart';
 import 'package:go_router/go_router.dart';
-import 'package:image_network/image_network.dart';
-import '../../../../core/functions/int_to_date.dart';
 import '../../../../core/views/custom_button.dart';
 import '../../../../core/views/custom_dialog.dart';
-import '../../../../core/views/custom_input.dart';
+import '../../../../router/router.dart';
 import '../../../../router/router_items.dart';
 import '../../../../utils/colors.dart';
 import '../../../../utils/styles.dart';
+import 'forms/provider/new_edit_maintenance_provider.dart';
 
-class DriversPage extends ConsumerStatefulWidget {
-  const DriversPage({super.key});
+class MaintenancePage extends ConsumerStatefulWidget {
+  const MaintenancePage({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _DriversPageState();
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      _MaintenancePageState();
 }
 
-class _DriversPageState extends ConsumerState<DriversPage> {
+class _MaintenancePageState extends ConsumerState<MaintenancePage> {
   @override
   Widget build(BuildContext context) {
     var styles = Styles(context);
     var titleStyles = styles.title(color: Colors.white, fontSize: 15);
     var rowStyles = styles.body(fontSize: 13);
-    var drivers = ref.watch(driversProvider).filter.toList();
+    var maintenance = ref.watch(maintenanceProvider).filter;
     return Container(
       padding: const EdgeInsets.all(16),
       color: Colors.white,
@@ -36,7 +36,7 @@ class _DriversPageState extends ConsumerState<DriversPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Registered Drivers'.toUpperCase(),
+            'Maintenance History'.toUpperCase(),
             style: styles.title(fontSize: 35, color: primaryColor),
           ),
           const SizedBox(
@@ -55,9 +55,9 @@ class _DriversPageState extends ConsumerState<DriversPage> {
               SizedBox(
                 width: styles.width * .4,
                 child: CustomTextFields(
-                  hintText: 'Search a driver',
+                  hintText: 'Search a car',
                   onChanged: (query) {
-                    ref.read(driversProvider.notifier).filterDrivers(query);
+                    ref.read(maintenanceProvider.notifier).filter(query);
                   },
                 ),
               ),
@@ -65,12 +65,12 @@ class _DriversPageState extends ConsumerState<DriversPage> {
                 width: 10,
               ),
               CustomButton(
-                text: 'New Driver',
+                text: 'Add New Records',
                 radius: 10,
                 padding:
                     const EdgeInsets.symmetric(vertical: 10, horizontal: 30),
                 onPressed: () {
-                  context.go(RouterItem.newDriverRoute.path);
+                  context.go(RouterItem.newMaintenanceRoute.path);
                 },
               )
             ],
@@ -82,9 +82,10 @@ class _DriversPageState extends ConsumerState<DriversPage> {
             child: DataTable2(
               columnSpacing: 30,
               horizontalMargin: 12,
+              isHorizontalScrollBarVisible: true,
               empty: Center(
                   child: Text(
-                'No Driver found',
+                'No Maintenance History ',
                 style: rowStyles,
               )),
               minWidth: styles.width * .9,
@@ -99,45 +100,32 @@ class _DriversPageState extends ConsumerState<DriversPage> {
                     ),
                     fixedWidth: styles.largerThanMobile ? 80 : null),
                 DataColumn2(
-                    label: Text('Image'.toUpperCase()),
+                  label: Text('Date'.toUpperCase()),
+                  size: ColumnSize.L,
+                ),
+                DataColumn2(
+                    label: Text('Car'.toUpperCase()),
                     size: ColumnSize.S,
                     fixedWidth: styles.isMobile ? null : 120),
                 DataColumn2(
-                    label: Text('Name'.toUpperCase()),
-                    size: ColumnSize.S,
-                    fixedWidth: styles.isMobile ? null : 120),
+                  label: Text('Done By'.toUpperCase()),
+                  size: ColumnSize.M,
+                ),
                 DataColumn2(
-                    label: Text('Gender'.toUpperCase()),
-                    size: ColumnSize.S,
-                    fixedWidth: styles.isMobile ? null : 120),
-                DataColumn2(
-                  label: Text('Phone'.toUpperCase()),
-                  size: ColumnSize.S,
+                  label: Text('Maintenance Type'.toString()),
+                  size: ColumnSize.M,
                 ),
                 DataColumn2(
                   label: Text(
-                    'License No.'.toUpperCase(),
+                    'Description'.toUpperCase(),
                     textAlign: TextAlign.center,
                   ),
-                  size: ColumnSize.M,
+                  size: ColumnSize.L,
                 ),
                 DataColumn2(
-                  label: Text('License Expire'.toString()),
-                  size: ColumnSize.M,
-                  fixedWidth: styles.isMobile ? null : 150,
-                ),
-                DataColumn2(
-                  label: Text('Join Date'.toString()),
-                  size: ColumnSize.M,
-                  fixedWidth: styles.isMobile ? null : 150,
-                ),
-                DataColumn2(
-                  label: Text(
-                    'Status'.toUpperCase(),
-                    textAlign: TextAlign.center,
-                  ),
+                  label: Text('Cost'.toString()),
                   size: ColumnSize.S,
-                  fixedWidth: styles.isMobile ? null : 200,
+                  fixedWidth: styles.isMobile ? null : 150,
                 ),
                 DataColumn2(
                   label: Text('Action'.toUpperCase()),
@@ -145,49 +133,25 @@ class _DriversPageState extends ConsumerState<DriversPage> {
                   fixedWidth: styles.isMobile ? null : 150,
                 ),
               ],
-              rows: List<DataRow>.generate(drivers.length, (index) {
-                var driver = drivers[index];
+              rows: List<DataRow>.generate(maintenance.length, (index) {
+                var data = maintenance[index];
                 return DataRow(
                   cells: [
                     DataCell(Text('${index + 1}', style: rowStyles)),
-                    DataCell(Padding(
-                      padding: const EdgeInsets.all(5.0),
-                      child: Container(
-                        width: 70,
-                        height: 70,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(5),
+                    DataCell(Text(
+                        intToDate(
+                          data.date,
                         ),
-                        child: ImageNetwork(
-                          height: 70,
-                          width: 70,
-                          image: driver.image,
-                        ),
-                      ),
-                    )),
-                    DataCell(Text(driver.name, style: rowStyles)),
-                    DataCell(Text(driver.gender, style: rowStyles)),
-                    DataCell(Text(driver.phone, style: rowStyles)),
-                    DataCell(Text(driver.licenseNumber, style: rowStyles)),
-                    DataCell(Text(intToDate(driver.licenseExpiryDate),
                         style: rowStyles)),
-                    DataCell(
-                        Text(intToDate(driver.dateEmployed), style: rowStyles)),
-                    DataCell(Container(
-                        width: 90,
-                        // alignment: Alignment.center,
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 5, horizontal: 15),
-                        decoration: BoxDecoration(
-                            color: driver.status == 'available'
-                                ? Colors.green
-                                : driver.status == 'on trip'
-                                    ? Colors.blue
-                                    : Colors.red,
-                            borderRadius: BorderRadius.circular(5)),
-                        child: Text(driver.status,
-                            textAlign: TextAlign.center,
-                            style: rowStyles.copyWith(color: Colors.white)))),
+                    DataCell(Text(data.carNumber, style: rowStyles)),
+                    DataCell(Text(data.driverName, style: rowStyles)),
+                    DataCell(Text(data.maintenanceType, style: rowStyles)),
+                    DataCell(Text(data.description,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: rowStyles)),
+                    DataCell(Text('GHS ${data.cost.toStringAsFixed(1)}',
+                        style: rowStyles)),
                     DataCell(
                       Row(
                         children: [
@@ -196,13 +160,16 @@ class _DriversPageState extends ConsumerState<DriversPage> {
                             icon: const Icon(Icons.edit),
                             onPressed: () {
                               ref
-                                  .read(editDriverProvider.notifier)
-                                  .setDriver(driver);
-                              if (ref.watch(editDriverProvider).id.isNotEmpty) {
+                                  .read(editMaintenanceProvider.notifier)
+                                  .setMaintenance(data);
+                              if (ref
+                                  .watch(editMaintenanceProvider)
+                                  .id
+                                  .isNotEmpty) {
                                 MyRouter(context: context, ref: ref)
                                     .navigateToNamed(
-                                        pathPrams: {'id': driver.id},
-                                        item: RouterItem.editDriverRoute);
+                                        pathPrams: {'id': data.id},
+                                        item: RouterItem.editMaintenanceRoute);
                               }
                             },
                           ),
@@ -211,13 +178,13 @@ class _DriversPageState extends ConsumerState<DriversPage> {
                             onPressed: () {
                               CustomDialogs.showDialog(
                                 message:
-                                    'Are you sure you want to delete this driver?',
+                                    'Are you sure you want to delete this records?',
                                 type: DialogType.warning,
                                 secondBtnText: 'Delete',
                                 onConfirm: () {
                                   ref
-                                      .read(driversProvider.notifier)
-                                      .deleteDriver(driver);
+                                      .read(maintenanceProvider.notifier)
+                                      .deleteRecord(data);
                                 },
                               );
                             },

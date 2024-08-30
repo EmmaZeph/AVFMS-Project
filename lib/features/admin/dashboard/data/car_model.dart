@@ -11,6 +11,7 @@ class CarModel {
   String fuelType;
   double fuelCapacity;
   int seatCapacity;
+  int lastMaintenance;
 
   CarModel({
     required this.id,
@@ -22,7 +23,8 @@ class CarModel {
     this.status = 'available',
     required this.fuelType,
     required this.fuelCapacity,
-    this.seatCapacity= 0,
+    this.seatCapacity = 0,
+    required this.lastMaintenance,
   });
 
   static CarModel empty() {
@@ -35,6 +37,7 @@ class CarModel {
       registrationNumber: '',
       fuelType: '',
       fuelCapacity: 0.0,
+      lastMaintenance: 0
     );
   }
 
@@ -49,6 +52,7 @@ class CarModel {
     String? fuelType,
     double? fuelCapacity,
     int? seatCapacity,
+    int? lastMaintenance,
   }) {
     return CarModel(
       id: id ?? this.id,
@@ -61,6 +65,7 @@ class CarModel {
       fuelType: fuelType ?? this.fuelType,
       fuelCapacity: fuelCapacity ?? this.fuelCapacity,
       seatCapacity: seatCapacity ?? this.seatCapacity,
+      lastMaintenance: lastMaintenance ?? this.lastMaintenance,
     );
   }
 
@@ -77,6 +82,7 @@ class CarModel {
     result.addAll({'fuelType': fuelType});
     result.addAll({'fuelCapacity': fuelCapacity});
     result.addAll({'seatCapacity': seatCapacity});
+    result.addAll({'lastMaintenance': lastMaintenance});
   
     return result;
   }
@@ -93,6 +99,7 @@ class CarModel {
       fuelType: map['fuelType'] ?? '',
       fuelCapacity: map['fuelCapacity']?.toDouble() ?? 0.0,
       seatCapacity: map['seatCapacity']?.toInt() ?? 0,
+      lastMaintenance: map['lastMaintenance']?.toInt() ?? 0,
     );
   }
 
@@ -103,7 +110,7 @@ class CarModel {
 
   @override
   String toString() {
-    return 'CarModel(id: $id, type: $type, model: $model, brand: $brand, description: $description, registrationNumber: $registrationNumber, status: $status, fuelType: $fuelType, fuelCapacity: $fuelCapacity, seatCapacity: $seatCapacity)';
+    return 'CarModel(id: $id, type: $type, model: $model, brand: $brand, description: $description, registrationNumber: $registrationNumber, status: $status, fuelType: $fuelType, fuelCapacity: $fuelCapacity, seatCapacity: $seatCapacity, lastMaintenance: $lastMaintenance)';
   }
 
   @override
@@ -120,7 +127,8 @@ class CarModel {
       other.status == status &&
       other.fuelType == fuelType &&
       other.fuelCapacity == fuelCapacity &&
-      other.seatCapacity == seatCapacity;
+      other.seatCapacity == seatCapacity &&
+      other.lastMaintenance == lastMaintenance;
   }
 
   @override
@@ -134,6 +142,7 @@ class CarModel {
       status.hashCode ^
       fuelType.hashCode ^
       fuelCapacity.hashCode ^
-      seatCapacity.hashCode;
+      seatCapacity.hashCode ^
+      lastMaintenance.hashCode;
   }
 }
