@@ -89,7 +89,8 @@ class _CarsPageState extends ConsumerState<CarsPage> {
                 'No Cars found',
                 style: rowStyles,
               )),
-              minWidth: styles.width * .9,
+              // minWidth: styles.width * .9,
+              minWidth: 1300,
               headingRowColor: WidgetStateColor.resolveWith(
                   (states) => primaryColor.withOpacity(0.6)),
               headingTextStyle: titleStyles,
